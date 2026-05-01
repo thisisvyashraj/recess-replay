@@ -5,8 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import logo from "@/assets/logo.png";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 
 export default function Login() {
   const nav = useNavigate();
@@ -19,41 +18,37 @@ export default function Login() {
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    toast.success("Welcome back!");
+    if (error) return toast.error(error.message);
+    toast.success("Welcome back");
     nav("/", { replace: true });
   };
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col px-6 py-8">
-      <Link to="/welcome" className="flex h-10 w-10 items-center justify-center rounded-full bg-card shadow-card tap">
-        <ArrowLeft className="h-5 w-5" />
+    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col px-6 py-8 page-enter">
+      <Link to="/welcome" className="flex h-10 w-10 items-center justify-center rounded-full glass tap">
+        <ArrowLeft className="h-4 w-4" />
       </Link>
-      <div className="mt-6 flex flex-col items-center">
-        <img src={logo} alt="Recess.gg" width={80} height={80} className="h-20 w-20" />
-        <h1 className="mt-4 font-display text-3xl">Welcome back</h1>
-        <p className="text-sm text-muted-foreground">Pick up where you left off.</p>
+      <div className="mt-12">
+        <h1 className="text-3xl font-bold tracking-tight">Welcome back.</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Sign in to your account.</p>
       </div>
 
-      <form onSubmit={submit} className="mt-10 flex flex-col gap-4">
+      <form onSubmit={submit} className="mt-8 space-y-4">
         <div className="space-y-1.5">
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 rounded-xl" />
+          <Label htmlFor="email" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Email</Label>
+          <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 rounded-xl border-border-strong bg-surface-elevated" />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="password">Password</Label>
-          <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 rounded-xl" />
+          <Label htmlFor="password" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Password</Label>
+          <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 rounded-xl border-border-strong bg-surface-elevated" />
         </div>
-        <Button type="submit" disabled={loading} size="lg" className="mt-4 h-14 rounded-2xl bg-hero text-base font-semibold shadow-glow tap">
-          {loading ? "Logging in..." : "Log in"}
+        <Button type="submit" disabled={loading} size="lg" className="h-12 w-full rounded-xl text-base font-semibold tap shine">
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign in"}
         </Button>
       </form>
 
       <p className="mt-auto pt-8 text-center text-sm text-muted-foreground">
-        New here? <Link to="/signup" className="font-semibold text-primary">Create account</Link>
+        New here? <Link to="/signup" className="font-semibold text-foreground underline-offset-4 hover:underline">Create account</Link>
       </p>
     </div>
   );

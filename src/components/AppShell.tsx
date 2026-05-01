@@ -1,11 +1,11 @@
 import { ReactNode } from "react";
 import { BottomNav } from "./BottomNav";
 
-export function AppShell({ children }: { children: ReactNode }) {
+export function AppShell({ children, hideNav = false }: { children: ReactNode; hideNav?: boolean }) {
   return (
-    <div className="mx-auto min-h-screen w-full max-w-md pb-24">
+    <div className={`mx-auto min-h-screen w-full max-w-md page-enter ${hideNav ? "" : "pb-28"}`}>
       {children}
-      <BottomNav />
+      {!hideNav && <BottomNav />}
     </div>
   );
 }

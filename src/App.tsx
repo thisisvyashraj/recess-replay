@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 import Welcome from "./pages/Welcome";
@@ -27,13 +28,14 @@ function PublicOnly({ children }: { children: JSX.Element }) {
 }
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner position="top-center" />
-      <BrowserRouter>
-        <AuthProvider>
-          <Routes>
+  <ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner position="top-center" theme="system" />
+        <BrowserRouter>
+          <AuthProvider>
+            <Routes>
             <Route path="/welcome" element={<PublicOnly><Welcome /></PublicOnly>} />
             <Route path="/login" element={<PublicOnly><Login /></PublicOnly>} />
             <Route path="/signup" element={<PublicOnly><Signup /></PublicOnly>} />
@@ -44,11 +46,12 @@ const App = () => (
             <Route path="/games" element={<ProtectedRoute><GamesLibrary /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute adminOnly><AdminPanel /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+            </Routes>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ThemeProvider>
 );
 
 export default App;

@@ -11,35 +11,35 @@ const items = [
 
 export function BottomNav() {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 glass border-t border-border/60 pb-[env(safe-area-inset-bottom)]">
-      <ul className="mx-auto flex max-w-md items-stretch justify-around px-2 py-2">
-        {items.map(({ to, icon: Icon, label }) => (
-          <li key={to} className="flex-1">
-            <NavLink
-              to={to}
-              end={to === "/"}
-              className={({ isActive }) =>
-                `flex flex-col items-center gap-0.5 rounded-2xl py-2 tap transition-colors ${
-                  isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
-                }`
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  <span
-                    className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all ${
-                      isActive ? "bg-primary/15 scale-110" : ""
-                    }`}
-                  >
-                    <Icon className="h-5 w-5" strokeWidth={2.2} />
-                  </span>
-                  <span className="text-[10px] font-semibold tracking-wide">{label}</span>
-                </>
-              )}
-            </NavLink>
-          </li>
-        ))}
-      </ul>
+    <nav className="fixed bottom-0 left-0 right-0 z-40 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2">
+      <div className="mx-auto max-w-md px-4">
+        <ul className="glass-strong flex items-stretch justify-around rounded-full p-1.5 shadow-xl">
+          {items.map(({ to, icon: Icon, label }) => (
+            <li key={to} className="flex-1">
+              <NavLink
+                to={to}
+                end={to === "/"}
+                aria-label={label}
+                className={({ isActive }) =>
+                  `relative flex flex-col items-center justify-center gap-0.5 rounded-full py-2 tap transition-colors ${
+                    isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    {isActive && (
+                      <span className="absolute inset-0 rounded-full bg-secondary ring-1 ring-border-strong animate-scale-in" />
+                    )}
+                    <Icon className="relative z-10 h-5 w-5" strokeWidth={isActive ? 2.4 : 1.8} />
+                    <span className="relative z-10 text-[9px] font-semibold uppercase tracking-wider">{label}</span>
+                  </>
+                )}
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      </div>
     </nav>
   );
 }

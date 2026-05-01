@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      announcements: {
+        Row: {
+          active: boolean
+          body: string
+          created_at: string
+          created_by: string | null
+          id: string
+          title: string
+        }
+        Insert: {
+          active?: boolean
+          body: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          title: string
+        }
+        Update: {
+          active?: boolean
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          title?: string
+        }
+        Relationships: []
+      }
       confessions: {
         Row: {
           body: string
@@ -31,6 +58,83 @@ export type Database = {
           body?: string
           created_at?: string
           id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      game_rounds: {
+        Row: {
+          correct_answer: string | null
+          ends_at: string
+          finished: boolean
+          id: string
+          prompt: Json
+          question_id: string | null
+          room_id: string
+          round_number: number
+          started_at: string
+        }
+        Insert: {
+          correct_answer?: string | null
+          ends_at: string
+          finished?: boolean
+          id?: string
+          prompt: Json
+          question_id?: string | null
+          room_id: string
+          round_number: number
+          started_at?: string
+        }
+        Update: {
+          correct_answer?: string | null
+          ends_at?: string
+          finished?: boolean
+          id?: string
+          prompt?: Json
+          question_id?: string | null
+          room_id?: string
+          round_number?: number
+          started_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_rounds_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          kind: Database["public"]["Enums"]["notif_kind"]
+          link: string | null
+          read: boolean
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind: Database["public"]["Enums"]["notif_kind"]
+          link?: string | null
+          read?: boolean
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["notif_kind"]
+          link?: string | null
+          read?: boolean
+          title?: string
           user_id?: string
         }
         Relationships: []
@@ -113,6 +217,130 @@ export type Database = {
         }
         Relationships: []
       }
+      room_players: {
+        Row: {
+          id: string
+          is_eliminated: boolean
+          joined_at: string
+          room_id: string
+          score: number
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          is_eliminated?: boolean
+          joined_at?: string
+          room_id: string
+          score?: number
+          user_id: string
+        }
+        Update: {
+          id?: string
+          is_eliminated?: boolean
+          joined_at?: string
+          room_id?: string
+          score?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_players_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rooms: {
+        Row: {
+          code: string
+          created_at: string
+          current_round: number
+          finished_at: string | null
+          game_key: string
+          host_id: string
+          id: string
+          is_public: boolean
+          name: string
+          round_seconds: number
+          started_at: string | null
+          status: Database["public"]["Enums"]["room_status"]
+          subjects: string[] | null
+          total_rounds: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          current_round?: number
+          finished_at?: string | null
+          game_key: string
+          host_id: string
+          id?: string
+          is_public?: boolean
+          name: string
+          round_seconds?: number
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["room_status"]
+          subjects?: string[] | null
+          total_rounds?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          current_round?: number
+          finished_at?: string | null
+          game_key?: string
+          host_id?: string
+          id?: string
+          is_public?: boolean
+          name?: string
+          round_seconds?: number
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["room_status"]
+          subjects?: string[] | null
+          total_rounds?: number
+        }
+        Relationships: []
+      }
+      round_answers: {
+        Row: {
+          answer: string
+          answered_at: string
+          id: string
+          is_correct: boolean
+          points: number
+          round_id: string
+          user_id: string
+        }
+        Insert: {
+          answer: string
+          answered_at?: string
+          id?: string
+          is_correct?: boolean
+          points?: number
+          round_id: string
+          user_id: string
+        }
+        Update: {
+          answer?: string
+          answered_at?: string
+          id?: string
+          is_correct?: boolean
+          points?: number
+          round_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "round_answers_round_id_fkey"
+            columns: ["round_id"]
+            isOneToOne: false
+            referencedRelation: "game_rounds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -156,6 +384,7 @@ export type Database = {
       }
     }
     Functions: {
+      gen_room_code: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -163,9 +392,19 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_room_host: {
+        Args: { _room_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_room_member: {
+        Args: { _room_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "user"
+      notif_kind: "announcement" | "room_invite" | "game_result" | "system"
+      room_status: "waiting" | "in_progress" | "finished"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -294,6 +533,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      notif_kind: ["announcement", "room_invite", "game_result", "system"],
+      room_status: ["waiting", "in_progress", "finished"],
     },
   },
 } as const

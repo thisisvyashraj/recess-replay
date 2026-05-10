@@ -2,12 +2,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { avatarSrc, AVATARS } from "@/lib/avatars";
-import { LogOut, Settings, Trophy, Gamepad2, Sparkles } from "lucide-react";
+import { LogOut, Settings, Trophy, Gamepad2, Sparkles, Palette } from "lucide-react";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function Profile() {
   const { profile, signOut, refreshProfile } = useAuth();
@@ -33,16 +34,16 @@ export default function Profile() {
       <div className="px-5 pt-8">
         <div className="flex items-center justify-between">
           <h1 className="font-display text-3xl">Profile</h1>
-          <button onClick={doSignOut} className="flex h-10 w-10 items-center justify-center rounded-full bg-card shadow-card tap">
+          <button onClick={doSignOut} className="flex h-10 w-10 items-center justify-center rounded-full glass tap" aria-label="Sign out">
             <LogOut className="h-4 w-4" />
           </button>
         </div>
 
-        <div className="mt-6 rounded-3xl bg-hero p-1 shadow-glow">
+        <div className="mt-6 rounded-3xl bg-accent-gradient p-px shadow-glow">
           <div className="rounded-[22px] bg-card p-6">
             <button onClick={() => setOpen(true)} className="relative mx-auto block tap">
               <img src={avatarSrc(profile?.avatar_url)} alt="avatar" className="mx-auto h-28 w-28 rounded-3xl bg-secondary object-contain" />
-              <span className="absolute -bottom-1 -right-1 flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-glow">
+              <span className="absolute -bottom-1 -right-1 flex h-9 w-9 items-center justify-center rounded-full bg-accent-gradient text-accent-foreground shadow-glow">
                 <Settings className="h-4 w-4" />
               </span>
             </button>
@@ -55,6 +56,20 @@ export default function Profile() {
               <Stat icon={Sparkles} label="Points" value={profile?.points ?? 0} />
             </div>
           </div>
+        </div>
+
+        {/* Theme picker */}
+        <div className="mt-6 flex items-center justify-between rounded-2xl glass p-4">
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary">
+              <Palette className="h-4 w-4" />
+            </span>
+            <div>
+              <p className="font-semibold">Appearance</p>
+              <p className="text-xs text-muted-foreground">Light, Dark, or System</p>
+            </div>
+          </div>
+          <ThemeToggle />
         </div>
 
         <h2 className="mt-8 font-display text-xl">Badge shelf</h2>
@@ -80,8 +95,8 @@ export default function Profile() {
               <button
                 key={a.id}
                 onClick={() => pickAvatar(a.id)}
-                className={`aspect-square rounded-2xl bg-card p-2 shadow-card tap lift ${
-                  profile?.avatar_url === a.id ? "ring-4 ring-primary" : ""
+                className={`aspect-square rounded-2xl bg-secondary p-2 shadow-card tap lift ${
+                  profile?.avatar_url === a.id ? "ring-2 ring-accent" : ""
                 }`}
               >
                 <img src={a.src} alt={a.label} className="h-full w-full object-contain" />

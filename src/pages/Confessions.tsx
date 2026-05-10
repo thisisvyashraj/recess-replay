@@ -19,11 +19,7 @@ export default function Confessions() {
   const [posting, setPosting] = useState(false);
 
   const load = async () => {
-    const { data, error } = await supabase
-      .from("confessions_public")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(100);
+    const { data, error } = await supabase.rpc("list_confessions");
     if (error) {
       toast.error(error.message);
       return;
@@ -51,14 +47,14 @@ export default function Confessions() {
   return (
     <AppShell>
       <div className="px-5 pt-8">
-        <div className="flex items-end justify-between">
+        <div className="flex items-end justify-between gap-3">
           <div>
             <h1 className="font-display text-3xl">Whispers</h1>
-            <p className="text-sm text-muted-foreground">Anonymous. Untraceable. (To everyone but you.)</p>
+            <p className="text-sm text-muted-foreground">Anonymous. Untraceable. (To everyone but admin.)</p>
           </div>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button size="lg" className="h-12 rounded-2xl bg-hero shadow-glow tap">
+              <Button size="lg" className="h-12 rounded-2xl bg-hero shadow-glow tap shrink-0">
                 <Plus className="mr-1 h-4 w-4" /> Post
               </Button>
             </DialogTrigger>
@@ -93,7 +89,7 @@ export default function Confessions() {
           {items.map((c, i) => (
             <article
               key={c.id}
-              className="rounded-3xl bg-card p-5 shadow-card animate-slide-up"
+              className="rounded-3xl bg-card p-5 shadow-card animate-slide-up border border-border"
               style={{ animationDelay: `${Math.min(i * 40, 300)}ms` }}
             >
               <p className="whitespace-pre-wrap text-[15px] leading-relaxed">{c.body}</p>

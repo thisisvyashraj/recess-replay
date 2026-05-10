@@ -35,7 +35,7 @@ export default function Dashboard() {
         {isAdmin && (
           <Link
             to="/admin"
-            className="mt-5 flex items-center gap-3 rounded-2xl bg-gradient-to-r from-primary to-accent p-4 text-primary-foreground shadow-glow tap animate-pop-in"
+            className="mt-5 flex items-center gap-3 rounded-2xl bg-accent-gradient p-4 text-accent-foreground shadow-glow tap animate-pop-in"
           >
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20"><Shield className="h-5 w-5" /></span>
             <div className="flex-1">

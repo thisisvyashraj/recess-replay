@@ -4,6 +4,8 @@ import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { avatarSrc } from "@/lib/avatars";
+import { NotificationBell } from "@/components/NotificationBell";
+import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import { Plus, LogIn, Trophy, Flame, Gamepad2, Shield, Users } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";

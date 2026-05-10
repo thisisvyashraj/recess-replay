@@ -220,6 +220,19 @@
 
   .scrollbar-hide::-webkit-scrollbar { display: none; }
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* ===== Legacy aliases (used across pages) ===== */
+  .bg-hero {
+    background: var(--gradient-accent);
+    color: hsl(var(--accent-foreground));
+    border: 1px solid hsl(var(--accent) / 0.4);
+  }
+  .bg-hero:hover { filter: brightness(1.08); }
+  .shadow-card { box-shadow: var(--shadow-md); }
+  .shadow-soft { box-shadow: var(--shadow-sm); }
+  .font-display { font-family: 'Geist', system-ui, sans-serif; font-weight: 700; letter-spacing: -0.025em; }
+  .animate-pop-in { animation: pop 0.4s var(--ease-spring) both; }
+  .animate-slide-up { animation: slide-up 0.5s var(--ease-out-expo) both; }
 }
 
 /* ===== Animations ===== */

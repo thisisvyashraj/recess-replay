@@ -364,24 +364,7 @@ export type Database = {
       }
     }
     Views: {
-      confessions_public: {
-        Row: {
-          body: string | null
-          created_at: string | null
-          id: string | null
-        }
-        Insert: {
-          body?: string | null
-          created_at?: string | null
-          id?: string | null
-        }
-        Update: {
-          body?: string | null
-          created_at?: string | null
-          id?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       gen_room_code: { Args: never; Returns: string }
@@ -399,6 +382,14 @@ export type Database = {
       is_room_member: {
         Args: { _room_id: string; _user_id: string }
         Returns: boolean
+      }
+      list_confessions: {
+        Args: never
+        Returns: {
+          body: string
+          created_at: string
+          id: string
+        }[]
       }
     }
     Enums: {

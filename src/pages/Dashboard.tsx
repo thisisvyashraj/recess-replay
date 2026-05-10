@@ -21,15 +21,19 @@ export default function Dashboard() {
     <AppShell>
       <div className="px-5 pt-8">
         {/* Greeting */}
-        <div className="flex items-center justify-between">
-          <div>
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
             <p className="text-sm text-muted-foreground">{greeting()}</p>
-            <h1 className="font-display text-3xl">{profile?.display_name ?? "Friend"}</h1>
+            <h1 className="font-display text-3xl truncate">{profile?.display_name ?? "Friend"}</h1>
           </div>
-          <Link to="/profile" className="tap">
-            <img src={avatarSrc(profile?.avatar_url)} alt="Your avatar" className="h-14 w-14 rounded-2xl bg-card object-contain shadow-card" />
-          </Link>
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+            <Link to="/profile" className="tap shrink-0">
+              <img src={avatarSrc(profile?.avatar_url)} alt="Your avatar" className="h-12 w-12 rounded-2xl bg-secondary object-contain ring-1 ring-border" />
+            </Link>
+          </div>
         </div>
+        <AnnouncementBanner />
 
         {/* Admin entry — only for vyashraj */}
         {isAdmin && (

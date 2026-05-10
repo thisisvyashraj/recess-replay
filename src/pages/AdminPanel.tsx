@@ -9,43 +9,172 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
-import { ArrowLeft, BookOpen, Mic, Music, Type as TypeIcon, MessageCircleHeart, Megaphone, Trash2, Plus, Shield } from "lucide-react";
+import { ArrowLeft, BookOpen, Mic, Music, Type as TypeIcon, MessageCircleHeart, Megaphone, Trash2, Plus, Shield, Send, Bell } from "lucide-react";
 import { format } from "date-fns";
 
 const SUBJECTS = ["Mathematics", "Physics", "Chemistry", "Biology", "History", "Geography", "English", "General Knowledge"];
 
 export default function AdminPanel() {
   return (
-    <div className="mx-auto min-h-screen w-full max-w-2xl px-5 py-6">
+    <div className="mx-auto min-h-screen w-full max-w-2xl px-5 py-6 page-enter">
       <div className="flex items-center gap-3">
-        <Link to="/" className="flex h-10 w-10 items-center justify-center rounded-full bg-card shadow-card tap">
+        <Link to="/" className="flex h-10 w-10 items-center justify-center rounded-full glass tap">
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <div>
           <h1 className="flex items-center gap-2 font-display text-2xl">
-            <Shield className="h-5 w-5 text-primary" /> Admin Panel
+            <Shield className="h-5 w-5 text-accent" /> Admin Panel
           </h1>
-          <p className="text-xs text-muted-foreground">Banks, confessions, announcements</p>
+          <p className="text-xs text-muted-foreground">Banks, confessions, announcements, notifications</p>
         </div>
       </div>
 
-      <Tabs defaultValue="questions" className="mt-6">
-        <TabsList className="flex h-auto w-full flex-wrap gap-1 rounded-2xl bg-card p-1 shadow-card">
+      <Tabs defaultValue="ann" className="mt-6">
+        <TabsList className="flex h-auto w-full flex-wrap gap-1 rounded-2xl glass p-1">
+          <TabsTrigger value="ann" className="flex-1 gap-1 rounded-xl"><Megaphone className="h-3.5 w-3.5" />Announce</TabsTrigger>
+          <TabsTrigger value="notif" className="flex-1 gap-1 rounded-xl"><Bell className="h-3.5 w-3.5" />Notify</TabsTrigger>
           <TabsTrigger value="questions" className="flex-1 gap-1 rounded-xl"><BookOpen className="h-3.5 w-3.5" />Questions</TabsTrigger>
           <TabsTrigger value="spell" className="flex-1 gap-1 rounded-xl"><Mic className="h-3.5 w-3.5" />Spell</TabsTrigger>
           <TabsTrigger value="emoji" className="flex-1 gap-1 rounded-xl"><Music className="h-3.5 w-3.5" />Emoji</TabsTrigger>
           <TabsTrigger value="words" className="flex-1 gap-1 rounded-xl"><TypeIcon className="h-3.5 w-3.5" />Words</TabsTrigger>
           <TabsTrigger value="conf" className="flex-1 gap-1 rounded-xl"><MessageCircleHeart className="h-3.5 w-3.5" />Whispers</TabsTrigger>
-          <TabsTrigger value="ann" className="flex-1 gap-1 rounded-xl"><Megaphone className="h-3.5 w-3.5" />Announce</TabsTrigger>
         </TabsList>
 
+        <TabsContent value="ann" className="mt-4"><AnnouncementsAdmin /></TabsContent>
+        <TabsContent value="notif" className="mt-4"><NotifyAdmin /></TabsContent>
         <TabsContent value="questions" className="mt-4"><QuestionBank /></TabsContent>
         <TabsContent value="spell" className="mt-4"><Placeholder title="Spell Bee Audio Bank" sub="Audio upload tooling ships with the Spell Bee game." /></TabsContent>
         <TabsContent value="emoji" className="mt-4"><Placeholder title="Emoji Music Bank" sub="Pair emoji sequences with song names." /></TabsContent>
         <TabsContent value="words" className="mt-4"><Placeholder title="Word & Phrase Bank" sub="For 20 Questions, Wrong Answer Only, etc." /></TabsContent>
         <TabsContent value="conf" className="mt-4"><ConfessionsViewer /></TabsContent>
-        <TabsContent value="ann" className="mt-4"><Placeholder title="App Announcements" sub="Push a banner to every user's dashboard." /></TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+type Ann = { id: string; title: string; body: string; active: boolean; created_at: string };
+
+function AnnouncementsAdmin() {
+  const { user } = useAuth();
+  const [items, setItems] = useState<Ann[]>([]);
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const load = async () => {
+    const { data, error } = await supabase.from("announcements").select("*").order("created_at", { ascending: false }).limit(50);
+    if (error) return toast.error(error.message);
+    setItems((data ?? []) as Ann[]);
+  };
+  useEffect(() => { load(); }, []);
+
+  const post = async () => {
+    if (!title.trim() || !body.trim()) return toast.error("Title and body required");
+    setBusy(true);
+    const { error } = await supabase.from("announcements").insert({ title: title.trim(), body: body.trim(), created_by: user?.id, active: true });
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success("Announcement broadcast to every user");
+    setTitle(""); setBody("");
+    load();
+  };
+  const toggle = async (a: Ann) => {
+    await supabase.from("announcements").update({ active: !a.active }).eq("id", a.id);
+    load();
+  };
+  const del = async (id: string) => {
+    await supabase.from("announcements").delete().eq("id", id);
+    load();
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="space-y-3 rounded-2xl glass p-4">
+        <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title (e.g. New game dropped!)" className="rounded-xl" />
+        <Textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="Message to every user..." rows={3} className="resize-none rounded-xl" />
+        <Button onClick={post} disabled={busy} className="w-full rounded-xl bg-hero shadow-glow tap">
+          <Send className="mr-2 h-4 w-4" /> {busy ? "Broadcasting..." : "Broadcast to everyone"}
+        </Button>
+      </div>
+      <div className="space-y-2">
+        {items.map((a) => (
+          <div key={a.id} className="rounded-2xl glass p-4">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex-1">
+                <p className="font-semibold">{a.title}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{a.body}</p>
+                <p className="mt-2 text-[10px] uppercase tracking-wider text-muted-foreground">
+                  {format(new Date(a.created_at), "MMM d, h:mm a")} · {a.active ? "active" : "hidden"}
+                </p>
+              </div>
+              <div className="flex flex-col gap-1">
+                <button onClick={() => toggle(a)} className="rounded-lg px-2 py-1 text-xs hover:bg-secondary">{a.active ? "Hide" : "Show"}</button>
+                <button onClick={() => del(a.id)} className="rounded-lg p-2 text-destructive hover:bg-destructive/10"><Trash2 className="h-4 w-4" /></button>
+              </div>
+            </div>
+          </div>
+        ))}
+        {items.length === 0 && <EmptyHint text="No announcements yet" />}
+      </div>
+    </div>
+  );
+}
+
+type Recipient = { id: string; username: string; display_name: string };
+
+function NotifyAdmin() {
+  const [users, setUsers] = useState<Recipient[]>([]);
+  const [target, setTarget] = useState<string>("__all__");
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.from("profiles").select("id, username, display_name").order("username");
+      setUsers((data ?? []) as Recipient[]);
+    })();
+  }, []);
+
+  const send = async () => {
+    if (!title.trim()) return toast.error("Title required");
+    setBusy(true);
+    const targets = target === "__all__" ? users.map((u) => u.id) : [target];
+    const rows = targets.map((uid) => ({ user_id: uid, kind: "system" as const, title: title.trim(), body: body.trim() || null }));
+    const { error } = await supabase.from("notifications").insert(rows);
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success(`Sent to ${targets.length} ${targets.length === 1 ? "user" : "users"}`);
+    setTitle(""); setBody("");
+  };
+
+  return (
+    <div className="space-y-3 rounded-2xl glass p-4">
+      <div>
+        <Label className="text-xs text-muted-foreground">Recipient</Label>
+        <Select value={target} onValueChange={setTarget}>
+          <SelectTrigger className="mt-1 rounded-xl"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="__all__">Everyone ({users.length})</SelectItem>
+            {users.map((u) => (
+              <SelectItem key={u.id} value={u.id}>@{u.username} — {u.display_name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Notification title" className="rounded-xl" />
+      <Textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="Optional body..." rows={3} className="resize-none rounded-xl" />
+      <Button onClick={send} disabled={busy} className="w-full rounded-xl bg-hero shadow-glow tap">
+        <Bell className="mr-2 h-4 w-4" /> {busy ? "Sending..." : "Send notification"}
+      </Button>
+    </div>
+  );
+}
+
+function EmptyHint({ text }: { text: string }) {
+  return (
+    <div className="rounded-2xl border-2 border-dashed border-border bg-card/30 p-6 text-center text-sm text-muted-foreground">
+      {text}
     </div>
   );
 }

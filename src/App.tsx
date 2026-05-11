@@ -15,6 +15,7 @@ import Profile from "./pages/Profile";
 import Confessions from "./pages/Confessions";
 import Leaderboard from "./pages/Leaderboard";
 import GamesLibrary from "./pages/GamesLibrary";
+import GamePlay from "./pages/GamePlay";
 import AdminPanel from "./pages/AdminPanel";
 import NotFound from "./pages/NotFound";
 
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/confessions" element={<ProtectedRoute><Confessions /></ProtectedRoute>} />
             <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
             <Route path="/games" element={<ProtectedRoute><GamesLibrary /></ProtectedRoute>} />
+            <Route path="/games/:slug" element={<ProtectedRoute><GamePlay /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute adminOnly><AdminPanel /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
             </Routes>

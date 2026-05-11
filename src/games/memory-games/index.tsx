@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { GameLayout, ScorePill } from "../GameLayout";
 import { MEMORY_GRIDS } from "../data";
-import { RotateCw, Eye, Check } from "lucide-react";
+import { RotateCw, Eye } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { awardPoints } from "../awardPoints";
 import { toast } from "sonner";
@@ -12,8 +12,9 @@ type Stage = "show" | "pick" | "result" | "done";
 const PEEK_MS = 3000;
 
 function makeRound(idx: number) {
-  const grid = MEMORY_GRIDS[idx % MEMORY_GRIDS.length];
-  const target = grid[Math.floor(Math.random() * grid.length)];
+  const shuffled = [...MEMORY_GRIDS[idx % MEMORY_GRIDS.length]].sort(() => Math.random() - 0.5);
+  const grid = shuffled;
+  const target = grid[4]; // center of 3x3
   // distractors not in grid
   const allEmojis = "🍊🐯🌻🥑🪁🛹🍀🍒🌶️🦖🪼🥨🧁🐢🌈".split("");
   const distractors = allEmojis.filter(e => !grid.includes(e)).sort(() => Math.random() - 0.5).slice(0, 5);
@@ -108,7 +109,6 @@ export default function MemoryGames() {
                     }`}
                   >
                     {e}
-                    {showRight && <Check className="absolute h-4 w-4 text-success" />}
                   </button>
                 );
               })}

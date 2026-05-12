@@ -106,6 +106,60 @@ export type Database = {
           },
         ]
       }
+      lyric_clips: {
+        Row: {
+          artist: string
+          audio_url: string | null
+          choices: Json
+          correct: number
+          created_at: string
+          created_by: string | null
+          id: string
+          line: string
+        }
+        Insert: {
+          artist: string
+          audio_url?: string | null
+          choices: Json
+          correct: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          line: string
+        }
+        Update: {
+          artist?: string
+          audio_url?: string | null
+          choices?: Json
+          correct?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          line?: string
+        }
+        Relationships: []
+      }
+      mlt_prompts: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          prompt: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          prompt: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          prompt?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           body: string | null
@@ -256,9 +310,12 @@ export type Database = {
         Row: {
           code: string
           created_at: string
+          current_game_index: number
           current_round: number
+          final_leaderboard: Json | null
           finished_at: string | null
           game_key: string
+          games: string[]
           host_id: string
           id: string
           is_public: boolean
@@ -272,9 +329,12 @@ export type Database = {
         Insert: {
           code: string
           created_at?: string
+          current_game_index?: number
           current_round?: number
+          final_leaderboard?: Json | null
           finished_at?: string | null
           game_key: string
+          games?: string[]
           host_id: string
           id?: string
           is_public?: boolean
@@ -288,9 +348,12 @@ export type Database = {
         Update: {
           code?: string
           created_at?: string
+          current_game_index?: number
           current_round?: number
+          final_leaderboard?: Json | null
           finished_at?: string | null
           game_key?: string
+          games?: string[]
           host_id?: string
           id?: string
           is_public?: boolean
@@ -340,6 +403,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      spell_words: {
+        Row: {
+          audio_url: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          word: string
+        }
+        Insert: {
+          audio_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          word: string
+        }
+        Update: {
+          audio_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          word?: string
+        }
+        Relationships: []
+      }
+      type_sentences: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          text: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          text: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          text?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

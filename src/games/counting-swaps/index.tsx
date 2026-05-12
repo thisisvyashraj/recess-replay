@@ -1,26 +1,35 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { GameLayout, ScorePill } from "../GameLayout";
 import { Heart, RotateCw } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { awardPoints } from "../awardPoints";
 import { toast } from "sonner";
+import { sfx } from "@/lib/sfx";
+import { useRoomScore } from "@/lib/useRoomScore";
 
-// Counting with Swaps — say the right word for each number.
-// Rules: multiples of 3 → "Tomato", multiples of 5 → "Banana", both → "Tomato Banana"
+// Each game randomizes two divisor rules from a pool, with random words.
+const DIVISORS = [2, 3, 4, 5, 6, 7];
+const WORDS = ["Tomato","Banana","Pizza","Cookie","Mango","Pickle","Avocado","Donut","Pretzel","Sushi","Taco","Cherry"];
 
-const choices = ["Number", "Tomato", "Banana", "Tomato Banana"];
+type Rule = { div: number; word: string };
 
-function correctFor(n: number) {
-  const t = n % 3 === 0, b = n % 5 === 0;
-  if (t && b) return 3;
-  if (t) return 1;
-  if (b) return 2;
-  return 0;
+function makeRules(): [Rule, Rule] {
+  const ds = [...DIVISORS].sort(() => Math.random() - 0.5).slice(0, 2).sort((a,b)=>a-b);
+  const ws = [...WORDS].sort(() => Math.random() - 0.5);
+  return [{ div: ds[0], word: ws[0] }, { div: ds[1], word: ws[1] }];
 }
 
 export default function CountingSwaps() {
   const { user, refreshProfile } = useAuth();
+  const submitRoom = useRoomScore();
+  const [rules] = useState<[Rule, Rule]>(makeRules);
+  const choices = useMemo(() => ["Number", rules[0].word, rules[1].word, `${rules[0].word} ${rules[1].word}`], [rules]);
+  const correctFor = (n: number) => {
+    const a = n % rules[0].div === 0, b = n % rules[1].div === 0;
+    if (a && b) return 3; if (a) return 1; if (b) return 2; return 0;
+  };
+
   const [n, setN] = useState(1);
   const [lives, setLives] = useState(3);
   const [score, setScore] = useState(0);
@@ -31,11 +40,10 @@ export default function CountingSwaps() {
     if (feedback) return;
     const ok = idx === correctFor(n);
     if (ok) {
-      setScore(s => s + 1);
-      setFeedback("ok");
+      setScore(s => s + 1); setFeedback("ok"); sfx.ok();
       setTimeout(() => { setFeedback(null); setN(n + 1); }, 200);
     } else {
-      setFeedback("err");
+      setFeedback("err"); sfx.err();
       const newLives = lives - 1;
       setTimeout(() => {
         setFeedback(null);
@@ -46,11 +54,12 @@ export default function CountingSwaps() {
   };
 
   const finish = async () => {
-    setDone(true);
-    setLives(0);
+    setDone(true); setLives(0);
     const pts = score * 5;
     await awardPoints(user?.id, pts, score >= 30);
+    submitRoom(pts);
     await refreshProfile();
+    sfx.win();
     toast.success(`+${pts} points!`);
   };
 
@@ -58,7 +67,7 @@ export default function CountingSwaps() {
     return (
       <GameLayout title="Counting Swaps" subtitle="Out of lives">
         <div className="mt-10 grid place-items-center gap-4 text-center">
-          <div className="text-7xl font-display text-gradient">{score}</div>
+          <div className="text-7xl font-display text-gradient animate-pop">{score}</div>
           <p className="text-muted-foreground">streak · +{score * 5} points</p>
           <Button onClick={() => window.location.reload()} className="bg-hero shadow-glow"><RotateCw className="mr-2 h-4 w-4" /> Try again</Button>
         </div>
@@ -69,7 +78,7 @@ export default function CountingSwaps() {
   return (
     <GameLayout
       title="Counting Swaps"
-      subtitle={"÷3 → Tomato · ÷5 → Banana"}
+      subtitle={`÷${rules[0].div} → ${rules[0].word} · ÷${rules[1].div} → ${rules[1].word}`}
       right={
         <div className="flex items-center gap-1">
           {Array.from({ length: 3 }).map((_, i) => (
@@ -88,7 +97,7 @@ export default function CountingSwaps() {
         </div>
         <div className="grid grid-cols-2 gap-2">
           {choices.map((c, i) => (
-            <button key={c} onClick={() => tap(i)} className="glass tap rounded-2xl border border-border px-4 py-5 text-center font-semibold hover:border-accent">
+            <button key={c+i} onClick={() => tap(i)} className="glass tap rounded-2xl border border-border px-4 py-5 text-center font-semibold hover:border-accent">
               {c}
             </button>
           ))}

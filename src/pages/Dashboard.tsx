@@ -13,10 +13,12 @@ import { toast } from "sonner";
 export default function Dashboard() {
   const { profile, isAdmin } = useAuth();
   const [code, setCode] = useState("");
+  const navigate = (window as any).__nav__ ?? null;
 
-  const join = () => {
-    if (code.length < 4) return toast.error("Enter a room code");
-    toast.info("Rooms launching in the next iteration — code saved!");
+  const join = async () => {
+    const c = code.trim().toUpperCase();
+    if (c.length !== 6) return toast.error("Enter the 6-char code");
+    window.location.assign(`/rooms/${c}`);
   };
 
   return (
@@ -54,7 +56,7 @@ export default function Dashboard() {
         {/* Hero CTAs */}
         <div className="mt-6 grid gap-3">
           <Button asChild size="lg" className="h-16 rounded-2xl bg-hero text-base font-semibold shadow-glow tap">
-            <Link to="/games">
+            <Link to="/rooms/new">
               <Plus className="mr-2 h-5 w-5" /> Create a Room
             </Link>
           </Button>

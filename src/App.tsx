@@ -17,6 +17,9 @@ import Leaderboard from "./pages/Leaderboard";
 import GamesLibrary from "./pages/GamesLibrary";
 import GamePlay from "./pages/GamePlay";
 import AdminPanel from "./pages/AdminPanel";
+import RoomsHome from "./pages/RoomsHome";
+import RoomsCreate from "./pages/RoomsCreate";
+import RoomPage from "./pages/RoomPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -46,6 +49,9 @@ const App = () => (
             <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
             <Route path="/games" element={<ProtectedRoute><GamesLibrary /></ProtectedRoute>} />
             <Route path="/games/:slug" element={<ProtectedRoute><GamePlay /></ProtectedRoute>} />
+            <Route path="/rooms" element={<ProtectedRoute><RoomsHome /></ProtectedRoute>} />
+            <Route path="/rooms/new" element={<ProtectedRoute><RoomsCreate /></ProtectedRoute>} />
+            <Route path="/rooms/:code" element={<ProtectedRoute><RoomPage /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute adminOnly><AdminPanel /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
             </Routes>

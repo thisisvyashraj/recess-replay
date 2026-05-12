@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
-import { ArrowLeft, BookOpen, Mic, Music, Type as TypeIcon, MessageCircleHeart, Megaphone, Trash2, Plus, Shield, Send, Bell } from "lucide-react";
+import { ArrowLeft, BookOpen, Mic, Music, Type as TypeIcon, MessageCircleHeart, Megaphone, Trash2, Plus, Shield, Send, Bell, Upload, ListChecks } from "lucide-react";
 import { format } from "date-fns";
 
 const SUBJECTS = ["Mathematics", "Physics", "Chemistry", "Biology", "History", "Geography", "English", "General Knowledge"];
@@ -35,19 +35,191 @@ export default function AdminPanel() {
           <TabsTrigger value="notif" className="flex-1 gap-1 rounded-xl"><Bell className="h-3.5 w-3.5" />Notify</TabsTrigger>
           <TabsTrigger value="questions" className="flex-1 gap-1 rounded-xl"><BookOpen className="h-3.5 w-3.5" />Questions</TabsTrigger>
           <TabsTrigger value="spell" className="flex-1 gap-1 rounded-xl"><Mic className="h-3.5 w-3.5" />Spell</TabsTrigger>
-          <TabsTrigger value="emoji" className="flex-1 gap-1 rounded-xl"><Music className="h-3.5 w-3.5" />Emoji</TabsTrigger>
-          <TabsTrigger value="words" className="flex-1 gap-1 rounded-xl"><TypeIcon className="h-3.5 w-3.5" />Words</TabsTrigger>
+          <TabsTrigger value="lyric" className="flex-1 gap-1 rounded-xl"><Music className="h-3.5 w-3.5" />Lyrics</TabsTrigger>
+          <TabsTrigger value="mlt" className="flex-1 gap-1 rounded-xl"><ListChecks className="h-3.5 w-3.5" />MostLikely</TabsTrigger>
+          <TabsTrigger value="type" className="flex-1 gap-1 rounded-xl"><TypeIcon className="h-3.5 w-3.5" />TypeRace</TabsTrigger>
           <TabsTrigger value="conf" className="flex-1 gap-1 rounded-xl"><MessageCircleHeart className="h-3.5 w-3.5" />Whispers</TabsTrigger>
         </TabsList>
 
         <TabsContent value="ann" className="mt-4"><AnnouncementsAdmin /></TabsContent>
         <TabsContent value="notif" className="mt-4"><NotifyAdmin /></TabsContent>
         <TabsContent value="questions" className="mt-4"><QuestionBank /></TabsContent>
-        <TabsContent value="spell" className="mt-4"><Placeholder title="Spell Bee Audio Bank" sub="Audio upload tooling ships with the Spell Bee game." /></TabsContent>
-        <TabsContent value="emoji" className="mt-4"><Placeholder title="Emoji Music Bank" sub="Pair emoji sequences with song names." /></TabsContent>
-        <TabsContent value="words" className="mt-4"><Placeholder title="Word & Phrase Bank" sub="For 20 Questions, Wrong Answer Only, etc." /></TabsContent>
+        <TabsContent value="spell" className="mt-4"><SpellAdmin /></TabsContent>
+        <TabsContent value="lyric" className="mt-4"><LyricAdmin /></TabsContent>
+        <TabsContent value="mlt" className="mt-4"><MltAdmin /></TabsContent>
+        <TabsContent value="type" className="mt-4"><TypeAdmin /></TabsContent>
         <TabsContent value="conf" className="mt-4"><ConfessionsViewer /></TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+function SpellAdmin() {
+  const [items, setItems] = useState<any[]>([]);
+  const [word, setWord] = useState("");
+  const load = async () => { const { data } = await supabase.from("spell_words").select("*").order("created_at", { ascending: false }); setItems(data ?? []); };
+  useEffect(() => { load(); }, []);
+  const add = async () => {
+    if (!word.trim()) return;
+    const { error } = await supabase.from("spell_words").insert({ word: word.trim() });
+    if (error) return toast.error(error.message);
+    setWord(""); toast.success("Added"); load();
+  };
+  const del = async (id: string) => { await supabase.from("spell_words").delete().eq("id", id); load(); };
+  return (
+    <div className="space-y-3">
+      <div className="glass flex gap-2 rounded-2xl p-3">
+        <Input value={word} onChange={e => setWord(e.target.value)} onKeyDown={e => e.key === "Enter" && add()} placeholder="Add a word…" className="rounded-xl" />
+        <Button onClick={add} className="rounded-xl bg-hero shadow-glow"><Plus className="h-4 w-4" /></Button>
+      </div>
+      <p className="text-xs text-muted-foreground">{items.length} words. Browser TTS reads them aloud.</p>
+      <div className="grid grid-cols-2 gap-2">
+        {items.map((w) => (
+          <div key={w.id} className="glass flex items-center justify-between rounded-xl px-3 py-2">
+            <span className="text-sm font-medium">{w.word}</span>
+            <button onClick={() => del(w.id)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-3.5 w-3.5" /></button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function LyricAdmin() {
+  const [items, setItems] = useState<any[]>([]);
+  const [form, setForm] = useState({ artist: "", line: "", a: "", b: "", c: "", d: "", correct: 0 });
+  const [file, setFile] = useState<File | null>(null);
+  const [busy, setBusy] = useState(false);
+  const load = async () => { const { data } = await supabase.from("lyric_clips").select("*").order("created_at", { ascending: false }); setItems(data ?? []); };
+  useEffect(() => { load(); }, []);
+  const add = async () => {
+    if (!form.artist || !form.line || !form.a || !form.b || !form.c || !form.d) return toast.error("Fill all fields");
+    setBusy(true);
+    let audio_url: string | null = null;
+    if (file) {
+      const path = `lyrics/${Date.now()}-${file.name}`;
+      const { error: upErr } = await supabase.storage.from("game-audio").upload(path, file, { upsert: false });
+      if (upErr) { setBusy(false); return toast.error(upErr.message); }
+      audio_url = supabase.storage.from("game-audio").getPublicUrl(path).data.publicUrl;
+    }
+    const { error } = await supabase.from("lyric_clips").insert({
+      artist: form.artist, line: form.line,
+      choices: [form.a, form.b, form.c, form.d],
+      correct: form.correct, audio_url,
+    });
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    setForm({ artist: "", line: "", a: "", b: "", c: "", d: "", correct: 0 }); setFile(null);
+    toast.success("Lyric added"); load();
+  };
+  const del = async (id: string) => { await supabase.from("lyric_clips").delete().eq("id", id); load(); };
+  return (
+    <div className="space-y-3">
+      <div className="glass space-y-2 rounded-2xl p-3">
+        <Input placeholder="Artist" value={form.artist} onChange={e => setForm({ ...form, artist: e.target.value })} className="rounded-xl" />
+        <Input placeholder="Lyric prompt (or hint)" value={form.line} onChange={e => setForm({ ...form, line: e.target.value })} className="rounded-xl" />
+        <div className="grid grid-cols-2 gap-2">
+          {(["a","b","c","d"] as const).map((k, i) => (
+            <Input key={k} placeholder={`Choice ${k.toUpperCase()}`} value={(form as any)[k]}
+              onChange={e => setForm({ ...form, [k]: e.target.value })}
+              className={`rounded-xl ${form.correct === i ? "border-success ring-2 ring-success/30" : ""}`} />
+          ))}
+        </div>
+        <div className="flex items-center gap-2">
+          <Label className="text-xs">Correct:</Label>
+          <Select value={String(form.correct)} onValueChange={v => setForm({ ...form, correct: +v })}>
+            <SelectTrigger className="w-24 rounded-xl"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {["A","B","C","D"].map((k, i) => <SelectItem key={k} value={String(i)}>{k}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        <label className="flex items-center justify-between rounded-xl border border-dashed border-border bg-card/40 px-3 py-2 text-xs cursor-pointer hover:border-accent">
+          <span className="flex items-center gap-2"><Upload className="h-3.5 w-3.5" /> {file ? file.name : "Upload mp3 (3–4s clip)"}</span>
+          <input type="file" accept="audio/mpeg,audio/mp3,audio/*" onChange={e => setFile(e.target.files?.[0] ?? null)} className="hidden" />
+        </label>
+        <Button onClick={add} disabled={busy} className="w-full rounded-xl bg-hero shadow-glow">{busy ? "Saving…" : "Add lyric clip"}</Button>
+      </div>
+      <div className="space-y-2">
+        {items.map((c) => (
+          <div key={c.id} className="glass flex items-start justify-between rounded-2xl px-3 py-2">
+            <div className="flex-1">
+              <p className="text-xs text-muted-foreground">{c.artist} {c.audio_url && "· 🎵"}</p>
+              <p className="text-sm">{c.line}</p>
+              <p className="text-[11px] text-success mt-1">✓ {(c.choices as string[])[c.correct]}</p>
+            </div>
+            <button onClick={() => del(c.id)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MltAdmin() {
+  const [items, setItems] = useState<any[]>([]);
+  const [text, setText] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const load = async () => { const { data } = await supabase.from("mlt_prompts").select("*").order("created_at", { ascending: false }); setItems(data ?? []); };
+  useEffect(() => { load(); }, []);
+  const save = async () => {
+    if (!text.trim()) return;
+    if (editingId) {
+      await supabase.from("mlt_prompts").update({ prompt: text.trim() }).eq("id", editingId);
+      setEditingId(null);
+    } else {
+      await supabase.from("mlt_prompts").insert({ prompt: text.trim() });
+    }
+    setText(""); toast.success("Saved"); load();
+  };
+  const edit = (it: any) => { setEditingId(it.id); setText(it.prompt); };
+  const del = async (id: string) => { await supabase.from("mlt_prompts").delete().eq("id", id); load(); };
+  return (
+    <div className="space-y-3">
+      <div className="glass flex gap-2 rounded-2xl p-3">
+        <Input value={text} onChange={e => setText(e.target.value)} onKeyDown={e => e.key === "Enter" && save()} placeholder='Most likely to…' className="rounded-xl" />
+        <Button onClick={save} className="rounded-xl bg-hero shadow-glow">{editingId ? "Save" : <Plus className="h-4 w-4" />}</Button>
+      </div>
+      <div className="grid gap-1.5">
+        {items.map((p) => (
+          <div key={p.id} className="glass flex items-center justify-between rounded-xl px-3 py-2">
+            <span className="text-sm">{p.prompt}</span>
+            <div className="flex gap-1">
+              <button onClick={() => edit(p)} className="rounded px-2 py-0.5 text-xs hover:bg-secondary">Edit</button>
+              <button onClick={() => del(p.id)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-3.5 w-3.5" /></button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function TypeAdmin() {
+  const [items, setItems] = useState<any[]>([]);
+  const [text, setText] = useState("");
+  const load = async () => { const { data } = await supabase.from("type_sentences").select("*").order("created_at", { ascending: false }); setItems(data ?? []); };
+  useEffect(() => { load(); }, []);
+  const add = async () => {
+    if (text.trim().length < 30) return toast.error("Min 30 chars");
+    await supabase.from("type_sentences").insert({ text: text.trim() });
+    setText(""); toast.success("Added"); load();
+  };
+  const del = async (id: string) => { await supabase.from("type_sentences").delete().eq("id", id); load(); };
+  return (
+    <div className="space-y-3">
+      <div className="glass space-y-2 rounded-2xl p-3">
+        <Textarea value={text} onChange={e => setText(e.target.value)} placeholder="Type Race sentence (30+ chars)…" rows={3} className="resize-none rounded-xl" />
+        <Button onClick={add} className="w-full rounded-xl bg-hero shadow-glow"><Plus className="mr-1 h-4 w-4" /> Add sentence</Button>
+      </div>
+      <div className="grid gap-1.5">
+        {items.map((s) => (
+          <div key={s.id} className="glass flex items-start justify-between gap-2 rounded-xl px-3 py-2">
+            <span className="text-sm flex-1">{s.text}</span>
+            <button onClick={() => del(s.id)} className="text-muted-foreground hover:text-destructive shrink-0"><Trash2 className="h-3.5 w-3.5" /></button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

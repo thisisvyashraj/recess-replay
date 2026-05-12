@@ -60,7 +60,7 @@ export default function RoomPage() {
 
   const start = async () => {
     if (!room) return;
-    await supabase.from("rooms").update({ status: "playing", current_game_index: 0, started_at: new Date().toISOString() }).eq("id", room.id);
+    await supabase.from("rooms").update({ status: "in_progress", current_game_index: 0, started_at: new Date().toISOString() }).eq("id", room.id);
     sfx.whoosh();
   };
 
@@ -169,7 +169,7 @@ export default function RoomPage() {
           <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
             {room.games.map((slug, i) => {
               const g = findGame(slug);
-              const active = i === room.current_game_index && room.status === "playing";
+              const active = i === room.current_game_index && room.status === "in_progress";
               const done = i < room.current_game_index || room.status === "finished";
               return (
                 <div key={i} className={`glass shrink-0 rounded-2xl px-3 py-2 text-xs ${active ? "border-accent shadow-glow" : done ? "opacity-50" : ""}`}>
@@ -193,7 +193,7 @@ export default function RoomPage() {
           </div>
         )}
 
-        {room.status === "playing" && (
+        {room.status === "in_progress" && (
           <div className="mt-6 glass-strong rounded-3xl p-5 text-center animate-scale-in">
             <p className="text-xs uppercase tracking-wider text-muted-foreground">Now playing · Round {room.current_game_index + 1}/{room.games.length}</p>
             <p className="mt-1 font-display text-2xl text-gradient">{currentGame?.name ?? currentSlug}</p>

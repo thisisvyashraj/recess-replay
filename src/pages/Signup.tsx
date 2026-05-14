@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { AVATARS } from "@/lib/avatars";
-import { ArrowLeft, Check, Loader2, ArrowRight } from "lucide-react";
+import { ArrowLeft, Check, Loader2, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { z } from "zod";
 
 const usernameSchema = z
@@ -24,6 +24,8 @@ export default function Signup() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [password2, setPassword2] = useState("");
+  const [showPw, setShowPw] = useState(false);
 
   const [usernameStatus, setUsernameStatus] = useState<"idle" | "checking" | "free" | "taken" | "invalid">("idle");
   const [usernameError, setUsernameError] = useState<string>("");
@@ -59,6 +61,7 @@ export default function Signup() {
     e.preventDefault();
     if (usernameStatus !== "free") return toast.error("Pick an available username");
     if (password.length < 8) return toast.error("Password must be 8+ characters");
+    if (password !== password2) return toast.error("Passwords don't match");
     if (!email) return toast.error("Add an email");
     setSubmitting(true);
     const { error } = await supabase.auth.signUp({
@@ -169,7 +172,17 @@ export default function Signup() {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="pw" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Password</Label>
-              <Input id="pw" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 rounded-xl border-border-strong bg-surface-elevated" placeholder="8+ characters" />
+              <div className="relative">
+                <Input id="pw" type={showPw ? "text" : "password"} required value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 rounded-xl border-border-strong bg-surface-elevated pr-12" placeholder="8+ characters" />
+                <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-2 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground tap" aria-label={showPw ? "Hide" : "Show"}>
+                  {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="pw2" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Confirm password</Label>
+              <Input id="pw2" type={showPw ? "text" : "password"} required value={password2} onChange={(e) => setPassword2(e.target.value)} className="h-12 rounded-xl border-border-strong bg-surface-elevated" placeholder="re-type password" />
+              {password2.length > 0 && password !== password2 && <p className="text-xs text-destructive">Passwords don't match</p>}
             </div>
 
             <Button type="submit" disabled={submitting || usernameStatus !== "free"} size="lg" className="mt-2 h-12 w-full rounded-xl text-base font-semibold tap shine">

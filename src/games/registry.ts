@@ -21,7 +21,7 @@ export const PLAYABLE_GAMES: GameMeta[] = [
   { slug: "memory-games", name: "Memory Games", desc: "What did you just see?", icon: Camera, Component: lazy(() => import("./memory-games")) },
   { slug: "memory-chain", name: "Memory Chain", desc: "Watch. Repeat. Don't forget.", icon: Repeat, Component: lazy(() => import("./memory-chain")) },
   { slug: "emoji-decode", name: "Emoji Decode", desc: "Crack the emoji puzzle", icon: Sparkles, Component: lazy(() => import("./emoji-decode")) },
-  { slug: "wrong-answers-only", name: "Wrong Answers Only", desc: "Be creatively wrong", icon: UserX, Component: lazy(() => import("./wrong-answers-only")) },
+  { slug: "wrong-answer-only", name: "Wrong Answers Only", desc: "Be creatively wrong", icon: UserX, Component: lazy(() => import("./wrong-answer-only")) },
 ];
 
 export const PLAYABLE_SLUGS = new Set(PLAYABLE_GAMES.map(g => g.slug));

@@ -169,11 +169,13 @@ export default function RoomPage() {
           <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
             {room.games.map((slug, i) => {
               const g = findGame(slug);
+              const Icon = g?.icon;
               const active = i === room.current_game_index && room.status === "in_progress";
               const done = i < room.current_game_index || room.status === "finished";
               return (
-                <div key={i} className={`glass shrink-0 rounded-2xl px-3 py-2 text-xs ${active ? "border-accent shadow-glow" : done ? "opacity-50" : ""}`}>
-                  <span className="mono font-bold mr-1">{i + 1}.</span>{g?.name ?? slug}
+                <div key={i} className={`glass shrink-0 inline-flex items-center gap-1.5 rounded-2xl px-3 py-2 text-xs ${active ? "border-accent shadow-glow" : done ? "opacity-50" : ""}`}>
+                  {Icon && <Icon className="h-3.5 w-3.5 text-accent" />}
+                  <span className="mono font-bold">{i + 1}.</span>{g?.name ?? slug}
                 </div>
               );
             })}

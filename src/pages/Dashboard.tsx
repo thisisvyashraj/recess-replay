@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { avatarSrc } from "@/lib/avatars";
 import { NotificationBell } from "@/components/NotificationBell";
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
-import { Plus, LogIn, Trophy, Flame, Gamepad2, Shield, Users } from "lucide-react";
+import { Plus, LogIn, Trophy, Flame, Gamepad2, Shield, Users, MessageCircleHeart } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -82,6 +82,28 @@ export default function Dashboard() {
           <StatCard icon={Gamepad2} label="Played" value={profile?.games_played ?? 0} tint="bg-primary/10 text-primary" />
           <StatCard icon={Flame} label="Streak" value={0} tint="bg-accent/15 text-accent-foreground" />
           <StatCard icon={Trophy} label="Points" value={profile?.points ?? 0} tint="bg-success/15 text-success" />
+        </div>
+
+        {/* Quick links */}
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          <Link to="/confessions" className="glass tap flex items-center gap-3 rounded-2xl p-3 hover:border-accent">
+            <span className="grid h-10 w-10 place-items-center rounded-xl bg-accent/15 text-accent ring-1 ring-accent/30">
+              <MessageCircleHeart className="h-5 w-5" />
+            </span>
+            <div className="min-w-0">
+              <p className="font-display text-sm leading-tight">Whispers</p>
+              <p className="text-[11px] text-muted-foreground">Anonymous board</p>
+            </div>
+          </Link>
+          <Link to="/games" className="glass tap flex items-center gap-3 rounded-2xl p-3 hover:border-accent">
+            <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary/15 text-primary ring-1 ring-primary/30">
+              <Gamepad2 className="h-5 w-5" />
+            </span>
+            <div className="min-w-0">
+              <p className="font-display text-sm leading-tight">Games</p>
+              <p className="text-[11px] text-muted-foreground">Solo & party</p>
+            </div>
+          </Link>
         </div>
 
         {/* Active rooms */}

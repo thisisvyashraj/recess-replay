@@ -20,6 +20,7 @@ function fallbackClips(): Clip[] {
 }
 
 export default function FinishLyric() {
+  const replay = useReplay();
   const { user, refreshProfile } = useAuth();
   const submitRoom = useRoomScore();
   const [rounds, setRounds] = useState<Clip[]>([]);

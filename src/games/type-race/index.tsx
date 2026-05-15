@@ -12,6 +12,7 @@ import { sfx } from "@/lib/sfx";
 import { useRoomScore } from "@/lib/useRoomScore";
 
 export default function TypeRace() {
+  const replay = useReplay();
   const { user, refreshProfile } = useAuth();
   const submitRoom = useRoomScore();
   const [text, setText] = useState<string>("");

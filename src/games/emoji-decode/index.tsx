@@ -39,6 +39,7 @@ const PUZZLES: Puzzle[] = [
 const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
 
 export default function EmojiDecode() {
+  const replay = useReplay();
   const { user, refreshProfile } = useAuth();
   const submitRoom = useRoomScore();
   const [pool, setPool] = useState<Puzzle[]>([]);

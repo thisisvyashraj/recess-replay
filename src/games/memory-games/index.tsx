@@ -33,6 +33,7 @@ function makeRound(rIdx: number) {
 }
 
 export default function MemoryGames() {
+  const replay = useReplay();
   const { user, refreshProfile } = useAuth();
   const submitRoom = useRoomScore();
   const [rIdx, setRIdx] = useState(0);

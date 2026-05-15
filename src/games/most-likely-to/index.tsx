@@ -25,6 +25,7 @@ const TIERS: { id: Tier; label: string; ring: string; bar: string }[] = [
 const TIER_POINTS: Record<Tier, number> = { S: 5, A: 4, B: 3, C: 2, D: 1, POOL: 0 };
 
 export default function MostLikelyTo() {
+  const replay = useReplay();
   const [stage, setStage] = useState<Stage>("setup");
   const [name, setName] = useState("");
   const [players, setPlayers] = useState<string[]>([]);

@@ -22,6 +22,7 @@ function makeRules(): [Rule, Rule] {
 }
 
 export default function CountingSwaps() {
+  const replay = useReplay();
   const { user, refreshProfile } = useAuth();
   const submitRoom = useRoomScore();
   const [rules] = useState<[Rule, Rule]>(makeRules);

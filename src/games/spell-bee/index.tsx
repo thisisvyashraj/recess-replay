@@ -17,6 +17,7 @@ const ROUNDS = 8;
 type W = { word: string; audio_url?: string | null };
 
 export default function SpellBee() {
+  const replay = useReplay();
   const { user, refreshProfile } = useAuth();
   const submitRoom = useRoomScore();
   const [words, setWords] = useState<W[]>([]);

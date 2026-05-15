@@ -39,6 +39,7 @@ const REAL = [
 ];
 
 export default function WrongAnswersOnly() {
+  const replay = useReplay();
   const { user, refreshProfile } = useAuth();
   const submitRoom = useRoomScore();
   const [pool, setPool] = useState<{ q: string; idx: number }[]>([]);

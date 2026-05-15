@@ -11,6 +11,7 @@ import { toast } from "sonner";
 type Match = { textIdx: number; whoIdx: number | null };
 
 export default function BlindChat() {
+  const replay = useReplay();
   const { user, refreshProfile } = useAuth();
   const [rIdx, setRIdx] = useState(0);
   const [round] = useState(() => [...BLIND_CHAT_ROUNDS].sort(() => Math.random() - 0.5).slice(0, 3));

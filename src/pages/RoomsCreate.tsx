@@ -68,10 +68,14 @@ export default function RoomsCreate() {
               {PLAYABLE_GAMES.map(g => {
                 const idx = picked.indexOf(g.slug);
                 const sel = idx >= 0;
+                const Icon = g.icon;
                 return (
                   <button key={g.slug} onClick={() => toggle(g.slug)}
                     className={`glass tap relative rounded-2xl border p-3 text-left transition-all ${sel ? "border-accent shadow-glow" : "border-border hover:border-border-strong"}`}>
                     {sel && <span className="absolute right-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-accent text-accent-foreground text-xs font-bold">{idx + 1}</span>}
+                    <span className="mb-2 grid h-8 w-8 place-items-center rounded-lg bg-secondary ring-1 ring-border">
+                      <Icon className="h-4 w-4 text-accent" />
+                    </span>
                     <p className="font-semibold text-sm">{g.name}</p>
                     <p className="mt-0.5 text-[11px] text-muted-foreground line-clamp-1">{g.desc}</p>
                   </button>

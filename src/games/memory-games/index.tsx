@@ -1,7 +1,8 @@
+import { useReplay } from "../useReplay";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { GameLayout, ScorePill } from "../GameLayout";
-import { MEMORY_GRIDS } from "../data";
+import { MEMORY_GRIDS, MEMORY_POOL } from "../data";
 import { RotateCw, Eye, Timer } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { awardPoints } from "../awardPoints";
@@ -25,14 +26,14 @@ function makeRound(rIdx: number) {
   const grid = [...MEMORY_GRIDS[rIdx % MEMORY_GRIDS.length]].sort(() => Math.random() - 0.5);
   const pos = POSITIONS[Math.floor(Math.random() * POSITIONS.length)];
   const target = grid[pos.idx];
-  const allEmojis = "🍊🐯🌻🥑🪁🛹🍀🍒🌶️🦖🪼🥨🧁🐢🌈🦋🍑🐬🌮".split("");
-  const distractors = allEmojis.filter(e => !grid.includes(e)).sort(() => Math.random() - 0.5).slice(0, 5);
+  const distractors = MEMORY_POOL.filter(e => !grid.includes(e)).sort(() => Math.random() - 0.5).slice(0, 5);
   const fromGrid = grid.filter(e => e !== target).sort(() => Math.random() - 0.5).slice(0, 2);
   const choices = Array.from(new Set([target, ...fromGrid, ...distractors])).slice(0, 6).sort(() => Math.random() - 0.5);
   return { grid, target, pos, choices, durationMs: TIMES_S[rIdx] * 1000 };
 }
 
 export default function MemoryGames() {
+  const replay = useReplay();
   const { user, refreshProfile } = useAuth();
   const submitRoom = useRoomScore();
   const [rIdx, setRIdx] = useState(0);
@@ -83,7 +84,7 @@ export default function MemoryGames() {
         <div className="mt-10 grid place-items-center gap-4 text-center">
           <div className="text-7xl font-display text-gradient animate-pop">{score}/{TOTAL}</div>
           <p className="text-muted-foreground">+{score * 14} points</p>
-          <Button onClick={() => window.location.reload()} className="bg-hero shadow-glow"><RotateCw className="mr-2 h-4 w-4" /> Play again</Button>
+          <Button onClick={replay} className="bg-hero shadow-glow"><RotateCw className="mr-2 h-4 w-4" /> Play again</Button>
         </div>
       </GameLayout>
     );

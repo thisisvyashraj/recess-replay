@@ -1,3 +1,4 @@
+import { useReplay } from "../useReplay";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { GameLayout, ScorePill } from "../GameLayout";
@@ -21,6 +22,7 @@ function makeRules(): [Rule, Rule] {
 }
 
 export default function CountingSwaps() {
+  const replay = useReplay();
   const { user, refreshProfile } = useAuth();
   const submitRoom = useRoomScore();
   const [rules] = useState<[Rule, Rule]>(makeRules);
@@ -69,7 +71,7 @@ export default function CountingSwaps() {
         <div className="mt-10 grid place-items-center gap-4 text-center">
           <div className="text-7xl font-display text-gradient animate-pop">{score}</div>
           <p className="text-muted-foreground">streak · +{score * 5} points</p>
-          <Button onClick={() => window.location.reload()} className="bg-hero shadow-glow"><RotateCw className="mr-2 h-4 w-4" /> Try again</Button>
+          <Button onClick={replay} className="bg-hero shadow-glow"><RotateCw className="mr-2 h-4 w-4" /> Try again</Button>
         </div>
       </GameLayout>
     );

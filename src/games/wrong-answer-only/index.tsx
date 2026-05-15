@@ -1,3 +1,4 @@
+import { useReplay } from "../useReplay";
 // Wrong Answer Only — give the most creatively wrong answer to a question
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -38,6 +39,7 @@ const REAL = [
 ];
 
 export default function WrongAnswersOnly() {
+  const replay = useReplay();
   const { user, refreshProfile } = useAuth();
   const submitRoom = useRoomScore();
   const [pool, setPool] = useState<{ q: string; idx: number }[]>([]);
@@ -103,7 +105,7 @@ export default function WrongAnswersOnly() {
             <p className="font-display text-5xl text-gradient mono">{pts}</p>
             <p className="text-xs uppercase tracking-wider text-muted-foreground">points</p>
           </div>
-          <Button onClick={() => window.location.reload()} className="mt-2 h-12 bg-hero shadow-glow"><RotateCw className="mr-2 h-4 w-4" /> Play again</Button>
+          <Button onClick={replay} className="mt-2 h-12 bg-hero shadow-glow"><RotateCw className="mr-2 h-4 w-4" /> Play again</Button>
         </div>
       </GameLayout>
     );

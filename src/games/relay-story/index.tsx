@@ -1,3 +1,4 @@
+import { useReplay } from "../useReplay";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +9,7 @@ import { Plus, Trash2, ArrowRight, RotateCw, Eye, EyeOff } from "lucide-react";
 type Stage = "setup" | "pass" | "write" | "done";
 
 export default function RelayStory() {
+  const replay = useReplay();
   const [stage, setStage] = useState<Stage>("setup");
   const [name, setName] = useState("");
   const [players, setPlayers] = useState<string[]>([]);
@@ -118,7 +120,7 @@ export default function RelayStory() {
             <p className="mt-1">{s.text}</p>
           </div>
         ))}
-        <Button onClick={() => window.location.reload()} className="mt-3 h-12 bg-hero shadow-glow"><RotateCw className="mr-2 h-4 w-4" /> New story</Button>
+        <Button onClick={replay} className="mt-3 h-12 bg-hero shadow-glow"><RotateCw className="mr-2 h-4 w-4" /> New story</Button>
       </div>
     </GameLayout>
   );

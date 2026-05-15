@@ -1,3 +1,4 @@
+import { useReplay } from "../useReplay";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { GameLayout } from "../GameLayout";
@@ -11,6 +12,7 @@ import { sfx } from "@/lib/sfx";
 import { useRoomScore } from "@/lib/useRoomScore";
 
 export default function TypeRace() {
+  const replay = useReplay();
   const { user, refreshProfile } = useAuth();
   const submitRoom = useRoomScore();
   const [text, setText] = useState<string>("");
@@ -69,7 +71,7 @@ export default function TypeRace() {
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground">accuracy</p>
           </div>
           <p className="text-sm text-muted-foreground">+{pts} points · in a room: rank by WPM</p>
-          <Button onClick={() => window.location.reload()} className="bg-hero shadow-glow"><RotateCw className="mr-2 h-4 w-4" /> Race again</Button>
+          <Button onClick={replay} className="bg-hero shadow-glow"><RotateCw className="mr-2 h-4 w-4" /> Race again</Button>
         </div>
       </GameLayout>
     );

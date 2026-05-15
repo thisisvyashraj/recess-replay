@@ -1,3 +1,4 @@
+import { useReplay } from "../useReplay";
 // Emoji Decode — guess the movie/show/phrase from emoji clues
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -38,6 +39,7 @@ const PUZZLES: Puzzle[] = [
 const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
 
 export default function EmojiDecode() {
+  const replay = useReplay();
   const { user, refreshProfile } = useAuth();
   const submitRoom = useRoomScore();
   const [pool, setPool] = useState<Puzzle[]>([]);
@@ -90,7 +92,7 @@ export default function EmojiDecode() {
         <div className="mt-10 text-center">
           <p className="font-display text-7xl text-gradient mono animate-pop">{score}</p>
           <p className="mt-2 text-xs uppercase tracking-wider text-muted-foreground">points</p>
-          <Button onClick={() => window.location.reload()} className="mt-8 bg-hero shadow-glow"><RotateCw className="mr-2 h-4 w-4" /> Play again</Button>
+          <Button onClick={replay} className="mt-8 bg-hero shadow-glow"><RotateCw className="mr-2 h-4 w-4" /> Play again</Button>
         </div>
       </GameLayout>
     );

@@ -1,3 +1,4 @@
+import { useReplay } from "../useReplay";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { GameLayout, ScorePill } from "../GameLayout";
@@ -10,6 +11,7 @@ import { toast } from "sonner";
 type Match = { textIdx: number; whoIdx: number | null };
 
 export default function BlindChat() {
+  const replay = useReplay();
   const { user, refreshProfile } = useAuth();
   const [rIdx, setRIdx] = useState(0);
   const [round] = useState(() => [...BLIND_CHAT_ROUNDS].sort(() => Math.random() - 0.5).slice(0, 3));
@@ -58,7 +60,7 @@ export default function BlindChat() {
         <div className="mt-10 grid place-items-center gap-4 text-center">
           <div className="text-7xl font-display text-gradient">{score}</div>
           <p className="text-muted-foreground">+{score * 15} points</p>
-          <Button onClick={() => window.location.reload()} className="bg-hero shadow-glow"><RotateCw className="mr-2 h-4 w-4" /> Play again</Button>
+          <Button onClick={replay} className="bg-hero shadow-glow"><RotateCw className="mr-2 h-4 w-4" /> Play again</Button>
         </div>
       </GameLayout>
     );

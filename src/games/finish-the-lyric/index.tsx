@@ -1,3 +1,4 @@
+import { useReplay } from "../useReplay";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { GameLayout, ScorePill } from "../GameLayout";
@@ -85,7 +86,7 @@ export default function FinishLyric() {
         <div className="mt-10 grid place-items-center gap-4 text-center">
           <div className="text-7xl font-display text-gradient animate-pop">{score}/{rounds.length}</div>
           <p className="text-muted-foreground">+{score * 12} points</p>
-          <Button onClick={() => window.location.reload()} className="bg-hero shadow-glow"><RotateCw className="mr-2 h-4 w-4" /> Play again</Button>
+          <Button onClick={replay} className="bg-hero shadow-glow"><RotateCw className="mr-2 h-4 w-4" /> Play again</Button>
         </div>
       </GameLayout>
     );

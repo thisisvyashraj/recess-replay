@@ -1,3 +1,4 @@
+import { useReplay } from "../useReplay";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -88,7 +89,7 @@ export default function SpellBee() {
         <div className="mt-10 grid place-items-center gap-4 text-center">
           <div className="text-7xl font-display text-gradient animate-pop">{score}/{ROUNDS}</div>
           <p className="text-muted-foreground">+{score * 10} points added</p>
-          <Button onClick={() => window.location.reload()} className="bg-hero shadow-glow"><RotateCw className="mr-2 h-4 w-4" /> Play again</Button>
+          <Button onClick={replay} className="bg-hero shadow-glow"><RotateCw className="mr-2 h-4 w-4" /> Play again</Button>
         </div>
       </GameLayout>
     );

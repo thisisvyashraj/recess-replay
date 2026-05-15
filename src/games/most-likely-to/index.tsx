@@ -1,3 +1,4 @@
+import { useReplay } from "../useReplay";
 // Most Likely To — TIER LIST edition.
 // Players are dragged into S/A/B/C/D tiers based on the prompt.
 import { useEffect, useState } from "react";
@@ -114,7 +115,7 @@ export default function MostLikelyTo() {
               <span className="mono text-2xl font-bold text-gradient">{v}</span>
             </div>
           ))}
-          <Button onClick={() => window.location.reload()} className="mt-4 h-12 bg-hero shadow-glow"><RotateCw className="mr-2 h-4 w-4" /> Play again</Button>
+          <Button onClick={replay} className="mt-4 h-12 bg-hero shadow-glow"><RotateCw className="mr-2 h-4 w-4" /> Play again</Button>
         </div>
       </GameLayout>
     );

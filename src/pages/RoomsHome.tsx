@@ -85,11 +85,17 @@ export default function RoomsHome() {
         <div className="grid gap-2">
           {mine.length === 0 && <p className="text-sm text-muted-foreground">No rooms yet.</p>}
           {mine.map(r => (
-            <Link key={r.id} to={`/rooms/${r.code}`} className="glass tap flex items-center justify-between rounded-2xl px-4 py-3 hover:border-accent">
-              <div>
-                <p className="font-semibold">{r.name || "Untitled room"}</p>
+            <Link key={r.id} to={`/rooms/${r.code}`} className="glass tap flex items-center justify-between gap-2 rounded-2xl px-4 py-3 hover:border-accent">
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold truncate">{r.name || "Untitled room"}</p>
                 <p className="text-xs text-muted-foreground mono">{r.code} · {r.status} · {r.games?.length ?? 0} games</p>
               </div>
+              {user && r.host_id === user.id && (
+                <button onClick={(e) => remove(r.id, e)} aria-label="Delete room"
+                  className="grid h-9 w-9 place-items-center rounded-xl bg-secondary text-muted-foreground hover:bg-destructive/15 hover:text-destructive transition-colors">
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )}
               <span className="text-accent">→</span>
             </Link>
           ))}

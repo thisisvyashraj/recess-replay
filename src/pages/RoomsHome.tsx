@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, LogIn, Plus, Users } from "lucide-react";
+import { ArrowLeft, LogIn, Plus, Trash2, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -15,18 +15,32 @@ export default function RoomsHome() {
   const [code, setCode] = useState("");
   const [mine, setMine] = useState<any[]>([]);
 
-  useEffect(() => {
+  const load = async () => {
     if (!user) return;
-    (async () => {
-      const { data } = await supabase
-        .from("rooms")
-        .select("id, code, name, status, games, current_game_index, host_id")
-        .or(`host_id.eq.${user.id},is_public.eq.true`)
-        .order("created_at", { ascending: false })
-        .limit(10);
-      setMine(data ?? []);
-    })();
-  }, [user]);
+    // Auto-cleanup: delete the user's stale rooms (waiting >2h, in_progress >6h, finished >24h)
+    const now = Date.now();
+    await supabase.from("rooms").delete().eq("host_id", user.id).eq("status", "waiting").lt("created_at", new Date(now - 2 * 3600_000).toISOString());
+    await supabase.from("rooms").delete().eq("host_id", user.id).eq("status", "in_progress").lt("created_at", new Date(now - 6 * 3600_000).toISOString());
+    await supabase.from("rooms").delete().eq("host_id", user.id).eq("status", "finished").lt("created_at", new Date(now - 24 * 3600_000).toISOString());
+
+    const { data } = await supabase
+      .from("rooms")
+      .select("id, code, name, status, games, current_game_index, host_id")
+      .or(`host_id.eq.${user.id},is_public.eq.true`)
+      .order("created_at", { ascending: false })
+      .limit(20);
+    setMine(data ?? []);
+  };
+
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [user]);
+
+  const remove = async (id: string, e: React.MouseEvent) => {
+    e.preventDefault(); e.stopPropagation();
+    const { error } = await supabase.from("rooms").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Room deleted");
+    setMine(m => m.filter(r => r.id !== id));
+  };
 
   const join = async () => {
     const c = code.trim().toUpperCase();
